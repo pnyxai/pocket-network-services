@@ -1,0 +1,5 @@
+services:
+  - service_id: qwen3-embedding-0-6b
+    service_name: "Qwen3 Embedding 06B - OpenAI API compatible"
+    compute_units_per_relay: 10000
+    card_file: ./mainnet/card_qwen3-embedding-0-6b.json

@@ -1,0 +1,5 @@
+services:
+  - service_id: text-generation
+    service_name: "Text Generation - OpenAI compatible LLM inference"
+    compute_units_per_relay: 300000
+    card_file: ./mainnet/card_text-generation.json
