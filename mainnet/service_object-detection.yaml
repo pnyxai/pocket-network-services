@@ -1,0 +1,5 @@
+services:
+  - service_id: object-detection
+    service_name: "Object Detection in Images - Ultralytics compatible API"
+    compute_units_per_relay: 35000
+    card_file: ./mainnet/card_object-detection.json
