@@ -1,0 +1,5 @@
+services:
+  - service_id: model-based-prompt-injection-detection
+    service_name: "Model-based Prompt Injection Detection in Text - language-forensics API"
+    compute_units_per_relay: 15000
+    card_file: ./mainnet/card_model-based-prompt-injection-detection.json

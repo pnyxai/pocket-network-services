@@ -1,0 +1,5 @@
+services:
+  - service_id: image-container-screening
+    service_name: "Image File Screening for Hidden Payloads - image-forensics API"
+    compute_units_per_relay: 5000
+    card_file: ./mainnet/card_image-container-screening.json

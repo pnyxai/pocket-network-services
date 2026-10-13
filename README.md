@@ -6,6 +6,11 @@ Currently we (actively) manage:
 - [text-generation](https://network-analytics.vercel.app/?tab=services&service=text-generation)
 - [qwen3-embedding-0-6b](https://network-analytics.vercel.app/?tab=services&service=qwen3-embedding-0-6b)
 - [object-detection](https://network-analytics.vercel.app/?tab=services&service=object-detection)
+- [optical-character-recognition](https://network-analytics.vercel.app/?tab=services&service=optical-character-recognition)
+- [model-based-prompt-injection-detection](https://network-analytics.vercel.app/?tab=services&service=model-based-prompt-injection-detection)
+- [ai-generated-image-detection](https://network-analytics.vercel.app/?tab=services&service=ai-generated-image-detection)
+- [image-container-screening](https://network-analytics.vercel.app/?tab=services&service=image-container-screening)
+- [image-prompt-injection-detection](https://network-analytics.vercel.app/?tab=services&service=image-prompt-injection-detection)
 
 ### What does it mean to manage/own a service?
 

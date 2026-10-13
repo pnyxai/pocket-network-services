@@ -1,0 +1,5 @@
+services:
+  - service_id: optical-character-recognition
+    service_name: "Optical Character Recognition in Images - Google Cloud Vision compatible API"
+    compute_units_per_relay: 50000
+    card_file: ./mainnet/card_optical-character-recognition.json

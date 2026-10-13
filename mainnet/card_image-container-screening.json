@@ -1,0 +1,46 @@
+{
+  "schema": "pocket-service-card/v1",
+  "description": "Screening of image files for hidden payloads (metadata text, Unicode smuggling, bytes appended after the image data), served through the image-forensics /v1/screen API. The expected endpoints are POST /v1/screen and GET /readyz; suppliers MAY expose more but consumers MUST NOT depend on it. No model is involved: answers are deterministic for a given rule table, identified by pipeline_fingerprint. The pixels are never examined, so a clean verdict says nothing about text painted into the image.",
+  "rpc_types": [
+    {
+      "type": "REST",
+      "intent": "expected",
+      "backend_hint": "image-forensics service on :8000 (image-forensics-service, endpoints.screen enabled); mount at /",
+      "notes": "Only POST /v1/screen and GET /readyz are expected. Request body is multipart/form-data with exactly one of media (file) or media_base64; url sources are off by default and MUST NOT be relied on. Send the original file bytes: the container is the evidence."
+    }
+  ],
+  "apis": [
+    "image-forensics-screen"
+  ],
+  "specs": [
+    {
+      "kind": "markdown",
+      "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/6f3912ee520cb75a98288aaf333d6ba1ef729788/mainnet/docs_image-container-screening.md",
+      "sha256": "80ccf9099e1a17a175390c1207b390119713c199d00d9136ada882c386ea4df5"
+    },
+    {
+      "kind": "openapi",
+      "url": "https://raw.githubusercontent.com/RawthiL/image-forensics-service/0f312c3d70c62b1f89c4efef4843b30e32df2f9b/docs/openapi.json",
+      "sha256": "8458c376a583b9347f26f4f3f00d6ad2a176170f9ba5f3ebf1328590465d8ec6"
+    }
+  ],
+  "access": "public",
+  "results": "variable",
+  "serving": {
+    "backend": "Any server exposing POST /v1/screen and GET /readyz with the request/response shape of the OpenAPI document in specs[1]. Recommended: image-forensics-service with endpoints.screen enabled. No model, GPU, sibling service or network access is required.",
+    "healthcheck": [
+      {
+        "rpc_type": "REST",
+        "request": {
+          "path": "/readyz",
+          "method": "GET"
+        },
+        "expect": {
+          "json_path": "$.endpoints.screen.pipeline",
+          "matches": "^screen/"
+        }
+      }
+    ],
+    "notes": "A screening-only deployment needs no detector section and downloads nothing; it can run on a small CPU host. Keep image URL fetching disabled. It is recommended to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
+  }
+}

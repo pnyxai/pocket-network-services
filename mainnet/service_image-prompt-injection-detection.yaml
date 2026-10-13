@@ -1,0 +1,5 @@
+services:
+  - service_id: image-prompt-injection-detection
+    service_name: "Prompt Injection Detection in Images - image-forensics API"
+    compute_units_per_relay: 150000
+    card_file: ./mainnet/card_image-prompt-injection-detection.json

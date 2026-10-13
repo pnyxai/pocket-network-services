@@ -1,0 +1,5 @@
+services:
+  - service_id: ai-generated-image-detection
+    service_name: "AI-Generated Image Detection - image-forensics and Hive compatible API"
+    compute_units_per_relay: 35000
+    card_file: ./mainnet/card_ai-generated-image-detection.json

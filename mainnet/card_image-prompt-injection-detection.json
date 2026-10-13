@@ -1,0 +1,46 @@
+{
+  "schema": "pocket-service-card/v1",
+  "description": "Prompt-injection detection in images (rendered and hidden text, image-scaling attacks, plus container checks), served through the image-forensics /v1/inspect API. The expected endpoints are POST /v1/inspect and GET /readyz; suppliers MAY expose more but consumers MUST NOT depend on it. Each response reports which composed checks ran (upstreams) and where each finding was located. This service is model-agnostic: suppliers choose their own OCR model and prompt-injection classifier, so verdicts vary and are not guaranteed by the protocol; each response carries a pipeline_fingerprint naming both.",
+  "rpc_types": [
+    {
+      "type": "REST",
+      "intent": "expected",
+      "backend_hint": "image-forensics service on :8000 (image-forensics-service, endpoints.inspect enabled, with OCR and classifier upstreams configured); mount at /",
+      "notes": "Only POST /v1/inspect and GET /readyz are expected. Request body is multipart/form-data with exactly one of media (file) or media_base64; url sources are off by default and MUST NOT be relied on. A clean verdict is container-only unless upstreams.ocr.status is ok."
+    }
+  ],
+  "apis": [
+    "image-forensics-inspect"
+  ],
+  "specs": [
+    {
+      "kind": "markdown",
+      "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/6f3912ee520cb75a98288aaf333d6ba1ef729788/mainnet/docs_image-prompt-injection-detection.md",
+      "sha256": "c5f6902fa10c63289d81d0b0117f94ba49a34855d2e5f36b5d7a1ed0f5ae25b6"
+    },
+    {
+      "kind": "openapi",
+      "url": "https://raw.githubusercontent.com/RawthiL/image-forensics-service/0f312c3d70c62b1f89c4efef4843b30e32df2f9b/docs/openapi.json",
+      "sha256": "8458c376a583b9347f26f4f3f00d6ad2a176170f9ba5f3ebf1328590465d8ec6"
+    }
+  ],
+  "access": "public",
+  "results": "variable",
+  "serving": {
+    "backend": "Any server exposing POST /v1/inspect and GET /readyz with the request/response shape of the OpenAPI document in specs[1]. Recommended: image-forensics-service with endpoints.inspect enabled, composed with the supplier's own image-inference-server (OCR, as in optical-character-recognition) and language-forensics-service (classifier, as in model-based-prompt-injection-detection). No specific weights are mandated. The operator is responsible for the licenses of the models they serve.",
+    "healthcheck": [
+      {
+        "rpc_type": "REST",
+        "request": {
+          "path": "/readyz",
+          "method": "GET"
+        },
+        "expect": {
+          "json_path": "$.endpoints.inspect.pipeline",
+          "matches": "^inspect/.*\\+ocr:.+\\+cls:.+"
+        }
+      }
+    ],
+    "notes": "Both upstreams MUST be configured; without them the endpoint degrades to container checks. Point them at your own backends directly, not through Pocket relays. Recommended models: PP-OCRv6 medium (Apache-2.0) and Horizon-Labs prompt-injection-guard base (Apache-2.0). Keep image URL fetching disabled. It is recommended to isolate the models behind pokt-ml-sidecar and to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
+  }
+}

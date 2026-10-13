@@ -1,0 +1,41 @@
+{
+  "schema": "pocket-service-card/v1",
+  "description": "Google Cloud Vision-compatible OCR (text detection and recognition). The expected endpoints are POST /v1/images:annotate (features TEXT_DETECTION and DOCUMENT_TEXT_DETECTION, REST only) and GET /health; suppliers MAY expose more of the Cloud Vision surface or extensions but consumers MUST NOT depend on it. This service is model-agnostic: suppliers choose their own OCR model and weights, so recognized text, language coverage, and polygons vary and are not guaranteed by the protocol.",
+  "rpc_types": [
+    {
+      "type": "REST",
+      "intent": "expected",
+      "backend_hint": "Cloud Vision-compatible images:annotate server on :8080 (image-inference-server, ocr endpoint enabled); mount at /",
+      "notes": "Only POST /v1/images:annotate and GET /health are expected. Request body is Cloud Vision JSON: requests[{image: {content: <base64>}, features: [{type: TEXT_DETECTION | DOCUMENT_TEXT_DETECTION}]}]. Image URLs (image.source.imageUri) are off by default and MUST NOT be relied on. gRPC is not served."
+    }
+  ],
+  "apis": [
+    "google-cloud-vision-annotate"
+  ],
+  "specs": [
+    {
+      "kind": "markdown",
+      "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/6f3912ee520cb75a98288aaf333d6ba1ef729788/mainnet/docs_optical-character-recognition.md",
+      "sha256": "adadc9550ce472f5e0c460ba7c191f5a199a127c4ee325e2d1a22bc11f4bc14d"
+    }
+  ],
+  "access": "public",
+  "results": "variable",
+  "serving": {
+    "backend": "Any Google Cloud Vision-compatible server exposing POST /v1/images:annotate (REST) and GET /health. Recommended: image-inference-server (Rust gateway + NVIDIA Triton Inference Server) with the ocr endpoint enabled. Suppliers choose their own OCR model; no specific weights are mandated. The operator is responsible for the license of the model they serve.",
+    "healthcheck": [
+      {
+        "rpc_type": "REST",
+        "request": {
+          "path": "/health",
+          "method": "GET"
+        },
+        "expect": {
+          "json_path": "$.status",
+          "matches": "^healthy$"
+        }
+      }
+    ],
+    "notes": "Use a server with dynamic batching so one backend serves many concurrent requests. Recommended model: PP-OCRv6 medium det + rec (Apache-2.0); PP-OCRv6 small on CPU-only hosts. Keep image URL fetching disabled. It is recommended to isolate the model behind pokt-ml-sidecar and to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
+  }
+}
