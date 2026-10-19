@@ -1,6 +1,6 @@
 {
   "schema": "pocket-service-card/v1",
-  "description": "Ultralytics-compatible object detection. The expected endpoints are POST /predict and GET /health; suppliers MAY expose more of the Ultralytics surface but consumers MUST NOT depend on it. This service is model-agnostic: suppliers choose their own detection model and weights, so response quality, class sets, and box coordinates vary and are not guaranteed by the protocol.",
+  "description": "Ultralytics-compatible object detection. The expected endpoints are POST /predict and GET /health; suppliers MAY expose more of the Ultralytics surface but consumers MUST NOT depend on it. This service is model-agnostic: suppliers choose their own detection model and weights, so response quality, class sets, and box coordinates vary and are not guaranteed by the protocol. Every response, including errors, is a single JSON object.",
   "rpc_types": [
     {
       "type": "REST",
@@ -15,8 +15,15 @@
   "specs": [
     {
       "kind": "markdown",
+      "api": "ultralytics-predict",
       "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/b687f18c99f71f46316345565aa6e5d0ca02b4a6/mainnet/docs_object-detection.md",
       "sha256": "bcdac424babf0c7df43b522e793fd115feef1e81b1a0c4d9e497c237d2d5ad85"
+    },
+    {
+      "kind": "openapi",
+      "api": "ultralytics-predict",
+      "url": "https://platform.ultralytics.com/openapi.json",
+      "notes": "Vendor document for the whole Ultralytics Platform, living (no sha256). Request and response shapes of /api/models/{owner}/{project}/{model}/predict apply; this service serves them at POST /predict. specs[0] is the contract."
     }
   ],
   "access": "public",
@@ -31,11 +38,13 @@
           "method": "GET"
         },
         "expect": {
-          "json_path": "$.status",
+          "json_path": "$.endpoints.detect.status",
           "matches": "^healthy$"
-        }
+        },
+        "notes": "Pins the detect endpoint: /health reports only enabled endpoints, so an ocr-only deployment fails it."
       }
     ],
     "notes": "Use a server with dynamic batching so one backend serves many concurrent requests. Suppliers are responsible for model licensing (e.g. Ultralytics YOLO is AGPL-3.0). It is recommended to isolate the model behind pokt-ml-sidecar and to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
-  }
+  },
+  "updated": "2026-10-19"
 }

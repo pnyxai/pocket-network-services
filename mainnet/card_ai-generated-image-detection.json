@@ -1,6 +1,6 @@
 {
   "schema": "pocket-service-card/v1",
-  "description": "AI-generated image detection, served through the image-forensics /v1/detect API and a Hive-compatible /api/v2/task/sync layer over the same detector. The expected endpoints are POST /v1/detect, POST /api/v2/task/sync and GET /readyz; suppliers MAY expose more (GET /v1/models, the Sightengine compatibility layer) but consumers MUST NOT depend on it. Responses are probabilities, not verdicts. This service is model-agnostic: suppliers choose their own detector and crop policy, so scores, calibration, and detection quality vary and are not guaranteed by the protocol; each native response carries a pipeline_fingerprint identifying the weights and crop policy.",
+  "description": "AI-generated image detection, served through the image-forensics /v1/detect API and a Hive-compatible /api/v2/task/sync layer over the same detector. The expected endpoints are POST /v1/detect, POST /api/v2/task/sync and GET /readyz; suppliers MAY expose more (GET /v1/models, the Sightengine compatibility layer) but consumers MUST NOT depend on it. Responses are probabilities, not verdicts. This service is model-agnostic: suppliers choose their own detector and crop policy, so scores, calibration, and detection quality vary and are not guaranteed by the protocol; each native response carries a pipeline_fingerprint identifying the weights and crop policy. Every response, including errors, is a single JSON object.",
   "rpc_types": [
     {
       "type": "REST",
@@ -16,11 +16,13 @@
   "specs": [
     {
       "kind": "markdown",
+      "api": "image-forensics-detect",
       "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/6f3912ee520cb75a98288aaf333d6ba1ef729788/mainnet/docs_ai-generated-image-detection.md",
       "sha256": "f533ae32729c370ce32f47511a8294e3650c968b1c22818ebe763161f38da755"
     },
     {
       "kind": "openapi",
+      "api": "image-forensics-detect",
       "url": "https://raw.githubusercontent.com/RawthiL/image-forensics-service/0f312c3d70c62b1f89c4efef4843b30e32df2f9b/docs/openapi.json",
       "sha256": "8458c376a583b9347f26f4f3f00d6ad2a176170f9ba5f3ebf1328590465d8ec6"
     }
@@ -40,8 +42,24 @@
           "json_path": "$.endpoints.detect.pipeline",
           "matches": ".+"
         }
+      },
+      {
+        "rpc_type": "REST",
+        "request": {
+          "path": "/v1/detect",
+          "method": "POST",
+          "body": {
+            "media_base64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAgElEQVR4nNXOQREAIAzAsFIh6EQishCxB9coyDr7UiZxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEufvwNQDOUYB3utON20AAAAASUVORK5CYII="
+          }
+        },
+        "expect": {
+          "json_path": "$.pipeline_fingerprint",
+          "matches": ".+"
+        },
+        "notes": "Functional probe: a 64x64 solid PNG. Proves the detector scored an image; the score is not asserted."
       }
     ],
     "notes": "Recommended model: Community Forensics commfor-384 (MIT) with the default five-crop policy and max aggregation. If you already run Triton, the triton image needs no GPU on the service side. Keep image URL fetching disabled. It is recommended to isolate the model behind pokt-ml-sidecar and to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
-  }
+  },
+  "updated": "2026-10-19"
 }

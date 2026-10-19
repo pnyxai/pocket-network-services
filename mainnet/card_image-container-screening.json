@@ -1,6 +1,6 @@
 {
   "schema": "pocket-service-card/v1",
-  "description": "Screening of image files for hidden payloads (metadata text, Unicode smuggling, bytes appended after the image data), served through the image-forensics /v1/screen API. The expected endpoints are POST /v1/screen and GET /readyz; suppliers MAY expose more but consumers MUST NOT depend on it. No model is involved: answers are deterministic for a given rule table, identified by pipeline_fingerprint. The pixels are never examined, so a clean verdict says nothing about text painted into the image.",
+  "description": "Screening of image files for hidden payloads (metadata text, Unicode smuggling, bytes appended after the image data), served through the image-forensics /v1/screen API. The expected endpoints are POST /v1/screen and GET /readyz; suppliers MAY expose more but consumers MUST NOT depend on it. No model is involved: answers are deterministic for a given rule table, identified by pipeline_fingerprint. The pixels are never examined, so a clean verdict says nothing about text painted into the image. Every response, including errors, is a single JSON object.",
   "rpc_types": [
     {
       "type": "REST",
@@ -15,11 +15,13 @@
   "specs": [
     {
       "kind": "markdown",
+      "api": "image-forensics-screen",
       "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/6f3912ee520cb75a98288aaf333d6ba1ef729788/mainnet/docs_image-container-screening.md",
       "sha256": "80ccf9099e1a17a175390c1207b390119713c199d00d9136ada882c386ea4df5"
     },
     {
       "kind": "openapi",
+      "api": "image-forensics-screen",
       "url": "https://raw.githubusercontent.com/RawthiL/image-forensics-service/0f312c3d70c62b1f89c4efef4843b30e32df2f9b/docs/openapi.json",
       "sha256": "8458c376a583b9347f26f4f3f00d6ad2a176170f9ba5f3ebf1328590465d8ec6"
     }
@@ -39,8 +41,24 @@
           "json_path": "$.endpoints.screen.pipeline",
           "matches": "^screen/"
         }
+      },
+      {
+        "rpc_type": "REST",
+        "request": {
+          "path": "/v1/screen",
+          "method": "POST",
+          "body": {
+            "media_base64": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAgElEQVR4nNXOQREAIAzAsFIh6EQishCxB9coyDr7UiZxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEidxEufvwNQDOUYB3utON20AAAAASUVORK5CYII="
+          }
+        },
+        "expect": {
+          "json_path": "$.verdict",
+          "matches": "^clean$"
+        },
+        "notes": "Functional probe: a 64x64 PNG with no metadata and nothing appended, deterministically clean."
       }
     ],
     "notes": "A screening-only deployment needs no detector section and downloads nothing; it can run on a small CPU host. Keep image URL fetching disabled. It is recommended to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
-  }
+  },
+  "updated": "2026-10-19"
 }

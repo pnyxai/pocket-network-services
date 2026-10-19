@@ -1,6 +1,6 @@
 {
   "schema": "pocket-service-card/v1",
-  "description": "Prompt-injection detection in images (rendered and hidden text, image-scaling attacks, plus container checks), served through the image-forensics /v1/inspect API. The expected endpoints are POST /v1/inspect and GET /readyz; suppliers MAY expose more but consumers MUST NOT depend on it. Each response reports which composed checks ran (upstreams) and where each finding was located. This service is model-agnostic: suppliers choose their own OCR model and prompt-injection classifier, so verdicts vary and are not guaranteed by the protocol; each response carries a pipeline_fingerprint naming both.",
+  "description": "Prompt-injection detection in images (rendered and hidden text, image-scaling attacks, plus container checks), served through the image-forensics /v1/inspect API. The expected endpoints are POST /v1/inspect and GET /readyz; suppliers MAY expose more but consumers MUST NOT depend on it. Each response reports which composed checks ran (upstreams) and where each finding was located. This service is model-agnostic: suppliers choose their own OCR model and prompt-injection classifier, so verdicts vary and are not guaranteed by the protocol; each response carries a pipeline_fingerprint naming both. Every response, including errors, is a single JSON object.",
   "rpc_types": [
     {
       "type": "REST",
@@ -15,11 +15,13 @@
   "specs": [
     {
       "kind": "markdown",
+      "api": "image-forensics-inspect",
       "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/6f3912ee520cb75a98288aaf333d6ba1ef729788/mainnet/docs_image-prompt-injection-detection.md",
       "sha256": "c5f6902fa10c63289d81d0b0117f94ba49a34855d2e5f36b5d7a1ed0f5ae25b6"
     },
     {
       "kind": "openapi",
+      "api": "image-forensics-inspect",
       "url": "https://raw.githubusercontent.com/RawthiL/image-forensics-service/0f312c3d70c62b1f89c4efef4843b30e32df2f9b/docs/openapi.json",
       "sha256": "8458c376a583b9347f26f4f3f00d6ad2a176170f9ba5f3ebf1328590465d8ec6"
     }
@@ -39,8 +41,24 @@
           "json_path": "$.endpoints.inspect.pipeline",
           "matches": "^inspect/.*\\+ocr:.+\\+cls:.+"
         }
+      },
+      {
+        "rpc_type": "REST",
+        "request": {
+          "path": "/v1/inspect",
+          "method": "POST",
+          "body": {
+            "media_base64": "iVBORw0KGgoAAAANSUhEUgAAAUAAAABQAQAAAABASpEoAAABz0lEQVR42u2WMW7cQAxF38wKu+p2yiCN5gAp9gSRDhbEcxQfI+UcYY/AdC5pIIUQjIYpJBuOdyWnDSDWX4/k8JOQM/4tPLtwF+7CN8LJAz/jhtJMOJgJvRkH0874Big4exseAlPikSsTExptpRwzgd7gZCM8aFdcmYncErka/GaErLG8EN37ZhSozBQJMh7rStcBxuKKIecMUV+IdkPsBY4HEpeLqkhbT2bncroRBvnE2JLIA4SYL77cT62xKcCQSe2okqjNSo3i0UAk0RA6hnVihQji4Afi0hZxicOgn2GLKBCA+at1Ik0cwDygbbNBLEgGV4EgUCfn7xOf4JVIue8eD7r4VSsQqGzMugUIfhmxv7chs3vmjiuvVqorxEiGZw8El9JqjZAZ4FwB9VBPtkI8QV4cHZohr75jP7Ls6YS2yMZklkWAGELcmAwgEA2eAP2AKCQKGsO4RQwKkMY2SMsHxDwMWdFI2SK2vyzB9TEEae4TMdPObGTEBDrpi6vAQzn9dVEMM+nNCjhT6LWrFMDeC5caPXhaGIgOD6SVGh00NLikAt9Zr9Ey5/mQ9pa+rqTWCEQuIF9Qmc14k9otp2g6TtvH3u0/SLtwF/4vwj+w3jIcJz0D9QAAAABJRU5ErkJggg=="
+          }
+        },
+        "expect": {
+          "json_path": "$.upstreams.classifier.status",
+          "matches": "^ok$"
+        },
+        "notes": "Functional probe: a 320x80 PNG reading POCKET. The classifier only runs on text the OCR upstream extracted, so ok proves both upstreams answered."
       }
     ],
     "notes": "Both upstreams MUST be configured; without them the endpoint degrades to container checks. Point them at your own backends directly, not through Pocket relays. Recommended models: PP-OCRv6 medium (Apache-2.0) and Horizon-Labs prompt-injection-guard base (Apache-2.0). Keep image URL fetching disabled. It is recommended to isolate the models behind pokt-ml-sidecar and to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
-  }
+  },
+  "updated": "2026-10-19"
 }

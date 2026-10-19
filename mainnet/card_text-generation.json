@@ -16,6 +16,7 @@
   "specs": [
     {
       "kind": "markdown",
+      "api": "openai-chat-completions",
       "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/88b583cbfc60f44edc8adaee2bae59f62a4e5f94/mainnet/docs_text-generation.md",
       "sha256": "d83f2b125a38d68b3274d996718bcdea42c78bea0939206d8993f86b35490f52"
     }
@@ -48,6 +49,7 @@
         }
       }
     ],
-    "notes": "Use a server with continuous batching so one backend serves many concurrent generations. Alias the served model as \"pocket_network\". It is recommended to isolate the model behind pokt-ml-sidecar and serve SSE streaming through the HA RelayMiner. See the CONNECTION.md in specs[0] for the full runbook."
-  }
+    "notes": "Use a server with continuous batching so one backend serves many concurrent generations. Alias the served model as \"pocket_network\". It is recommended to isolate the model behind pokt-ml-sidecar and serve SSE streaming through the HA RelayMiner. See the docs in specs[0] for the full runbook."
+  },
+  "updated": "2026-10-19"
 }

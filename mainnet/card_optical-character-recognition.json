@@ -1,6 +1,6 @@
 {
   "schema": "pocket-service-card/v1",
-  "description": "Google Cloud Vision-compatible OCR (text detection and recognition). The expected endpoints are POST /v1/images:annotate (features TEXT_DETECTION and DOCUMENT_TEXT_DETECTION, REST only) and GET /health; suppliers MAY expose more of the Cloud Vision surface or extensions but consumers MUST NOT depend on it. This service is model-agnostic: suppliers choose their own OCR model and weights, so recognized text, language coverage, and polygons vary and are not guaranteed by the protocol.",
+  "description": "Google Cloud Vision-compatible OCR (text detection and recognition). The expected endpoints are POST /v1/images:annotate (features TEXT_DETECTION and DOCUMENT_TEXT_DETECTION, REST only) and GET /health; suppliers MAY expose more of the Cloud Vision surface or extensions but consumers MUST NOT depend on it. This service is model-agnostic: suppliers choose their own OCR model and weights, so recognized text, language coverage, and polygons vary and are not guaranteed by the protocol. Every response, including errors, is a single JSON object.",
   "rpc_types": [
     {
       "type": "REST",
@@ -15,8 +15,15 @@
   "specs": [
     {
       "kind": "markdown",
+      "api": "google-cloud-vision-annotate",
       "url": "https://raw.githubusercontent.com/pnyxai/pocket-network-services/6f3912ee520cb75a98288aaf333d6ba1ef729788/mainnet/docs_optical-character-recognition.md",
       "sha256": "adadc9550ce472f5e0c460ba7c191f5a199a127c4ee325e2d1a22bc11f4bc14d"
+    },
+    {
+      "kind": "google-discovery",
+      "api": "google-cloud-vision-annotate",
+      "url": "https://vision.googleapis.com/$discovery/rest?version=v1",
+      "notes": "Google publishes no OpenAPI document for Cloud Vision; this is its machine-readable Discovery document, living (no sha256). Only images:annotate with TEXT_DETECTION and DOCUMENT_TEXT_DETECTION applies; specs[0] is the contract."
     }
   ],
   "access": "public",
@@ -31,11 +38,39 @@
           "method": "GET"
         },
         "expect": {
-          "json_path": "$.status",
+          "json_path": "$.endpoints.ocr.status",
           "matches": "^healthy$"
-        }
+        },
+        "notes": "Pins the ocr endpoint: /health reports only enabled endpoints, so a detect-only deployment fails it."
+      },
+      {
+        "rpc_type": "REST",
+        "request": {
+          "path": "/v1/images:annotate",
+          "method": "POST",
+          "body": {
+            "requests": [
+              {
+                "image": {
+                  "content": "iVBORw0KGgoAAAANSUhEUgAAAUAAAABQAQAAAABASpEoAAABz0lEQVR42u2WMW7cQAxF38wKu+p2yiCN5gAp9gSRDhbEcxQfI+UcYY/AdC5pIIUQjIYpJBuOdyWnDSDWX4/k8JOQM/4tPLtwF+7CN8LJAz/jhtJMOJgJvRkH0874Big4exseAlPikSsTExptpRwzgd7gZCM8aFdcmYncErka/GaErLG8EN37ZhSozBQJMh7rStcBxuKKIecMUV+IdkPsBY4HEpeLqkhbT2bncroRBvnE2JLIA4SYL77cT62xKcCQSe2okqjNSo3i0UAk0RA6hnVihQji4Afi0hZxicOgn2GLKBCA+at1Ik0cwDygbbNBLEgGV4EgUCfn7xOf4JVIue8eD7r4VSsQqGzMugUIfhmxv7chs3vmjiuvVqorxEiGZw8El9JqjZAZ4FwB9VBPtkI8QV4cHZohr75jP7Ls6YS2yMZklkWAGELcmAwgEA2eAP2AKCQKGsO4RQwKkMY2SMsHxDwMWdFI2SK2vyzB9TEEae4TMdPObGTEBDrpi6vAQzn9dVEMM+nNCjhT6LWrFMDeC5caPXhaGIgOD6SVGh00NLikAt9Zr9Ey5/mQ9pa+rqTWCEQuIF9Qmc14k9otp2g6TtvH3u0/SLtwF/4vwj+w3jIcJz0D9QAAAABJRU5ErkJggg=="
+                },
+                "features": [
+                  {
+                    "type": "TEXT_DETECTION"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "expect": {
+          "json_path": "$.responses[0].textAnnotations[0].description",
+          "matches": "(?i)pocket"
+        },
+        "notes": "Functional probe: a 320x80 PNG reading POCKET. An image without text yields {}, so a probe without text proves nothing."
       }
     ],
     "notes": "Use a server with dynamic batching so one backend serves many concurrent requests. Recommended model: PP-OCRv6 medium det + rec (Apache-2.0); PP-OCRv6 small on CPU-only hosts. Keep image URL fetching disabled. It is recommended to isolate the model behind pokt-ml-sidecar and to front it with the HA RelayMiner. See the docs in specs[0] for the full runbook."
-  }
+  },
+  "updated": "2026-10-19"
 }
